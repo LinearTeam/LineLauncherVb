@@ -1,0 +1,28 @@
+{
+  "Mojang": {
+    "pistonMeta": "https://piston-meta.mojang.com",
+    "pistonData": "https://piston-data.mojang.com",
+    "launcherMeta": "https://launchermeta.mojang.com",
+    "launcher": "https://launcher.mojang.com",
+    "resources": "https://resources.download.minecraft.net",
+    "libraries": "https://libraries.minecraft.net"
+  },
+
+  "BmclApi": {
+    "pistonMeta": "https://bmclapi2.bangbang93.com",
+    "pistonData": "https://bmclapi2.bangbang93.com",
+    "launcherMeta": "https://bmclapi2.bangbang93.com",
+    "launcher": "https://bmclapi2.bangbang93.com",
+    "resources": "https://bmclapi2.bangbang93.com/assets",
+    "libraries": "https://bmclapi2.bangbang93.com/maven"
+  },
+
+  "LineMirror": {
+    "pistonMeta": "https://lm.icecreamteam.win:440/launcher",
+    "pistonData": "https://lm.icecreamteam.win:440/launcher",
+    "launcherMeta": "https://lm.icecreamteam.win:440/launchermeta",
+    "launcher": "https://lm.icecreamteam.win:440/launcher",
+    "resources": "https://lm.icecreamteam.win:440/assets",
+    "libraries": "https://lm.icecreamteam.win:440/libraries"
+  }
+}

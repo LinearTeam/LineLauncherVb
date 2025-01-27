@@ -1,0 +1,14 @@
+F:\Coding\LinearCore\bin\Debug\net8.0\LinearCore.exe
+F:\Coding\LinearCore\bin\Debug\net8.0\LinearCore.deps.json
+F:\Coding\LinearCore\bin\Debug\net8.0\LinearCore.runtimeconfig.json
+F:\Coding\LinearCore\bin\Debug\net8.0\LinearCore.dll
+F:\Coding\LinearCore\bin\Debug\net8.0\LinearCore.pdb
+F:\Coding\LinearCore\obj\Debug\net8.0\LinearCore.GeneratedMSBuildEditorConfig.editorconfig
+F:\Coding\LinearCore\obj\Debug\net8.0\LinearCore.AssemblyInfoInputs.cache
+F:\Coding\LinearCore\obj\Debug\net8.0\LinearCore.AssemblyInfo.vb
+F:\Coding\LinearCore\obj\Debug\net8.0\LinearCore.vbproj.CoreCompileInputs.cache
+F:\Coding\LinearCore\obj\Debug\net8.0\LinearCore.dll
+F:\Coding\LinearCore\obj\Debug\net8.0\refint\LinearCore.dll
+F:\Coding\LinearCore\obj\Debug\net8.0\LinearCore.pdb
+F:\Coding\LinearCore\obj\Debug\net8.0\LinearCore.genruntimeconfig.cache
+F:\Coding\LinearCore\obj\Debug\net8.0\ref\LinearCore.dll
