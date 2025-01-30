@@ -1,6 +1,6 @@
 # Line Minecraft Launcher
 
-[简体中文（中国）](LineLauncher.md) | [English (United States)](LineLauncher_en-us.md) | 日本語（日本）
+[简体中文（中国）](README.md) | [English (United States)](LineLauncher_en-us.md) | 日本語（日本）
 
 ## はじめに
 `Line Launcher` は `WPF(Windows Presentation Foundation)` ベースの `Minecraft` ランチャーです。
