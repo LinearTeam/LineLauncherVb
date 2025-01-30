@@ -1,6 +1,6 @@
 # Line Minecraft Launcher
 
-[简体中文（中国）](LineLauncher.md) | English (United States) | [日本語（日本）](LineLauncher_ja-jp.md)
+[简体中文（中国）](README.md) | English (United States) | [日本語（日本）](LineLauncher_ja-jp.md)
 
 ## Introduction
 `Line Launcher` is a `Minecraft` launcher using the `WPF(Windows Presentation Foundation)`, the repository is the `Visual Basic`.
