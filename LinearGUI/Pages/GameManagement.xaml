@@ -1,0 +1,113 @@
+﻿<Page x:Class="GameManagement"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:LineMinecraftLauncher"
+      xmlns:muxc="http://schemas.inkore.net/lib/ui/wpf/modern"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="游戏管理">
+    <Grid Margin="39,0,0,0">
+        <muxc:ScrollViewerEx>
+            <StackPanel>
+                <muxc:SettingsCard Margin="10, 10, 10, 10"
+                Description="1.21 Vanilla"
+                Header="抽象" Height="78">
+                    <muxc:SettingsCard.HeaderIcon>
+                        <Image Source="..\Resources\images\grass.png" Stretch="Uniform" />
+                    </muxc:SettingsCard.HeaderIcon>
+                    <Button Style="{StaticResource {x:Static muxc:ThemeKeys.AccentButtonStyleKey}}" HorizontalAlignment="Right" Margin="0,0,10,0">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Delete}"/>
+                                <TextBlock Text="删除" Margin="5,0,5,0" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                </muxc:SettingsCard>
+
+                <Separator Margin="5,2,5,2" />
+
+                <muxc:SettingsExpander
+         Header="个性化" Margin="10, 10, 10, 0">
+                    <muxc:SettingsExpander.HeaderIcon>
+                        <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Edit}" />
+                    </muxc:SettingsExpander.HeaderIcon>
+
+                    <muxc:SettingsExpander.Items>
+                        <muxc:SettingsCard Header="版本名称"
+                 Description="仅重命名显示的名称，不修改实际游戏版本">
+                            <muxc:SettingsCard.HeaderIcon>
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Rename}"/>
+                            </muxc:SettingsCard.HeaderIcon>
+                            <TextBox muxc:ControlHelper.PlaceholderText="抽象" />
+                        </muxc:SettingsCard>
+                        <muxc:SettingsCard Header="图标"
+                 Description="选择 LMC 要以何种图标展示它">
+                            <muxc:SettingsCard.HeaderIcon>
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.AppIconDefault}"/>
+                            </muxc:SettingsCard.HeaderIcon>
+                            <ComboBox muxc:ControlHelper.PlaceholderText="草方块"/>
+                        </muxc:SettingsCard>
+                    </muxc:SettingsExpander.Items>
+                </muxc:SettingsExpander>
+
+                <muxc:SettingsExpander Header="快速操作"
+                Margin="10,0,10,0">
+                    <muxc:SettingsExpander.HeaderIcon>
+                        <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.GenericScan}" />
+                    </muxc:SettingsExpander.HeaderIcon>
+
+                    <muxc:SettingsExpander.Items>
+                        <muxc:SettingsCard Header="打开此版本文件夹" IsClickEnabled="True">
+                            <muxc:SettingsCard.HeaderIcon>
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.OpenLocal}"/>
+                            </muxc:SettingsCard.HeaderIcon>
+                        </muxc:SettingsCard>
+                        <muxc:SettingsCard Header="生成启动脚本" IsClickEnabled="True">
+                            <muxc:SettingsCard.HeaderIcon>
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.CommandPrompt}"/>
+                            </muxc:SettingsCard.HeaderIcon>
+                        </muxc:SettingsCard>
+                        <muxc:SettingsCard Header="补全文件" IsClickEnabled="True">
+                            <muxc:SettingsCard.HeaderIcon>
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Repair}"/>
+                            </muxc:SettingsCard.HeaderIcon>
+                        </muxc:SettingsCard>
+                    </muxc:SettingsExpander.Items>
+                </muxc:SettingsExpander>
+
+                <muxc:SettingsExpander Header="管理"
+                 Margin="10, 0, 10, 0">
+                    <muxc:SettingsExpander.HeaderIcon>
+                        <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.FileExplorer}" />
+                    </muxc:SettingsExpander.HeaderIcon>
+
+                    <muxc:SettingsExpander.Items>
+                        <muxc:SettingsCard Header="存档管理" IsClickEnabled="True">
+                            <muxc:SettingsCard.HeaderIcon>
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Save}"/>
+                            </muxc:SettingsCard.HeaderIcon>
+                        </muxc:SettingsCard>
+                        <muxc:SettingsCard Header="模组管理" IsClickEnabled="True">
+                            <muxc:SettingsCard.HeaderIcon>
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Library}"/>
+                            </muxc:SettingsCard.HeaderIcon>
+                        </muxc:SettingsCard>
+                        <muxc:SettingsCard Header="启动管理" IsClickEnabled="True">
+                            <muxc:SettingsCard.HeaderIcon>
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Play}"/>
+                            </muxc:SettingsCard.HeaderIcon>
+                        </muxc:SettingsCard>
+                        <muxc:SettingsCard Header="安装管理" IsClickEnabled="True">
+                            <muxc:SettingsCard.HeaderIcon>
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Settings}"/>
+                            </muxc:SettingsCard.HeaderIcon>
+                        </muxc:SettingsCard>
+                    </muxc:SettingsExpander.Items>
+                </muxc:SettingsExpander>
+            </StackPanel>
+        </muxc:ScrollViewerEx>
+    </Grid>
+</Page>

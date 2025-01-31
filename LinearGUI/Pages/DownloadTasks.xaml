@@ -1,0 +1,57 @@
+﻿<Page x:Class="DownloadTasks"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:LineMinecraftLauncher"
+      xmlns:muxc="http://schemas.inkore.net/lib/ui/wpf/modern"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="任务">
+    <Grid Margin="39,0,0,0">
+        <muxc:ScrollViewerEx Margin="10, 10, 10, 10" VerticalAlignment="Top">
+            <muxc:SettingsExpander Header="正在安装实例 1.21.4" Margin="10, 10, 10, 10">
+                <muxc:SettingsExpander.HeaderIcon>
+                    <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Download}"/>
+                </muxc:SettingsExpander.HeaderIcon>
+
+                <muxc:SettingsExpander.Items>
+                    <muxc:SettingsCard Header="进度">
+                        <muxc:SettingsCard.HeaderIcon>
+                            <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Processing}" />
+                        </muxc:SettingsCard.HeaderIcon>
+                        <TextBlock Text="65%" />
+                    </muxc:SettingsCard>
+                    <muxc:SettingsCard Header="获取所有资源索引">
+                        <muxc:SettingsCard.HeaderIcon>
+                            <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Network}" />
+                        </muxc:SettingsCard.HeaderIcon>
+                        <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Completed}" />
+                    </muxc:SettingsCard>
+                    <muxc:SettingsCard Header="分析索引">
+                        <muxc:SettingsCard.HeaderIcon>
+                            <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Search}" />
+                        </muxc:SettingsCard.HeaderIcon>
+                        <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Completed}" />
+                    </muxc:SettingsCard>
+                    <muxc:SettingsCard Header="下载资源与依赖">
+                        <muxc:SettingsCard.HeaderIcon>
+                            <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.ConstructionCone}" />
+                        </muxc:SettingsCard.HeaderIcon>
+                        <muxc:ProgressRing />
+                    </muxc:SettingsCard>
+                    <muxc:SettingsCard Header="配置 Mod 加载器相关事宜">
+                        <muxc:SettingsCard.HeaderIcon>
+                            <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Edit}" />
+                        </muxc:SettingsCard.HeaderIcon>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="无需配置" Margin="10, 10, 10, 10"/>
+                            <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Completed}" />
+                        </StackPanel>
+                    </muxc:SettingsCard>
+
+                </muxc:SettingsExpander.Items>
+            </muxc:SettingsExpander>
+        </muxc:ScrollViewerEx>
+    </Grid>
+</Page>

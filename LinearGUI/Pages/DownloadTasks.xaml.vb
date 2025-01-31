@@ -1,0 +1,3 @@
+﻿Class DownloadTasks
+
+End Class
