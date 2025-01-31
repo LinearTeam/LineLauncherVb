@@ -47,5 +47,18 @@ Public Class HttpUtils
         Return responseContent
     End Function
 
+    Public Async Function PostWithParameters(parameters As Dictionary(Of String, String), url As String, accept As String, contentType As String) As Task(Of String)
 
+        _httpClient.DefaultRequestHeaders.Accept.Clear()
+        _httpClient.DefaultRequestHeaders.Accept.Add(New MediaTypeWithQualityHeaderValue(accept))
+
+        Dim content = New FormUrlEncodedContent(parameters)
+
+        content.Headers.ContentType = New MediaTypeHeaderValue(contentType)
+
+
+        Dim response = Await _httpClient.PostAsync(url, content)
+        Dim responseContent = response.Content.ReadAsStringAsync().Result
+        Return responseContent
+    End Function
 End Class
