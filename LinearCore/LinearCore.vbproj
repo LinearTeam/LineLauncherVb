@@ -6,4 +6,8 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Net\MirrorConfig.json" />
+  </ItemGroup>
+
 </Project>
