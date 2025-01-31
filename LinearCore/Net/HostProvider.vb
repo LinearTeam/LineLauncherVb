@@ -1,4 +1,5 @@
 ﻿Imports System.IO
+Imports System.Reflection
 
 Public Class UndefinedMirrorException
     Inherits Exception
@@ -27,18 +28,24 @@ Public Class HostProvider
     ''' </summary>
     ''' <param name="mirror">镜像源名称</param>
     Public Sub New(mirror As String)
-        JsonParser = New JsonUtils(File.ReadAllText("./MirrorConfig.json"))
-        Dim mirrorsList = JsonParser.GetNestedKeys("mirrors")
-        If mirrorsList.Contains(mirror) Then
-            Mirrors.Add("pistonMeta", JsonParser.GetNestedValue($"mirrors.{mirror}.pistonMeta"))
-            Mirrors.Add("pistonData", JsonParser.GetNestedValue($"mirrors.{mirror}.pistonData"))
-            Mirrors.Add("launcherMeta", JsonParser.GetNestedValue($"mirrors.{mirror}.launcherMeta"))
-            Mirrors.Add("launcher", JsonParser.GetNestedValue($"mirrors.{mirror}.launcher"))
-            Mirrors.Add("resources", JsonParser.GetNestedValue($"mirrors.{mirror}.resources"))
-            Mirrors.Add("libraries", JsonParser.GetNestedValue($"mirrors.{mirror}.libraries"))
-        Else
-            Throw New UndefinedMirrorException()
-        End If
+        Dim assembly As Assembly = Assembly.GetExecutingAssembly()
+        Using stream As Stream = assembly.GetManifestResourceStream("LinearCore.MirrorConfig.json")
+            Using reader As New StreamReader(stream)
+                Dim content As String = reader.ReadToEnd()
+                JsonParser = New JsonUtils((content))
+                Dim mirrorsList = JsonParser.GetNestedKeys("mirrors")
+                If mirrorsList.Contains(mirror) Then
+                    Mirrors.Add("pistonMeta", JsonParser.GetNestedValue($"mirrors.{mirror}.pistonMeta"))
+                    Mirrors.Add("pistonData", JsonParser.GetNestedValue($"mirrors.{mirror}.pistonData"))
+                    Mirrors.Add("launcherMeta", JsonParser.GetNestedValue($"mirrors.{mirror}.launcherMeta"))
+                    Mirrors.Add("launcher", JsonParser.GetNestedValue($"mirrors.{mirror}.launcher"))
+                    Mirrors.Add("resources", JsonParser.GetNestedValue($"mirrors.{mirror}.resources"))
+                    Mirrors.Add("libraries", JsonParser.GetNestedValue($"mirrors.{mirror}.libraries"))
+                Else
+                    Throw New UndefinedMirrorException()
+                End If
+            End Using
+        End Using
     End Sub
 
     ''' <summary>
