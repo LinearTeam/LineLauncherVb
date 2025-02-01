@@ -1,4 +1,5 @@
-﻿Imports System.Text.Json
+﻿Imports System.Dynamic
+Imports System.Text.Json
 
 ''' <summary>
 ''' 动态 Json 解析器
@@ -185,4 +186,53 @@ Public Class JsonUtils
         jsonDocument?.Dispose()
         MyBase.Finalize()
     End Sub
+
+    Public Shared Function Parse(jsonString As String) As Object
+        Dim document = JsonDocument.Parse(jsonString)
+        Try
+            Return ProcessElement(document.RootElement)
+        Finally
+            document.Dispose()
+        End Try
+    End Function
+
+    Private Shared Function ProcessElement(element As JsonElement) As Object
+        Select Case element.ValueKind
+            Case JsonValueKind.Object
+                Return ProcessObject(element)
+            Case JsonValueKind.Array
+                Return ProcessArray(element)
+            Case JsonValueKind.String
+                Return element.GetString()
+            Case JsonValueKind.Number
+                Return element.GetDouble()
+            Case JsonValueKind.True, JsonValueKind.False
+                Return element.GetBoolean()
+            Case JsonValueKind.Null
+                Return Nothing
+            Case Else
+                Throw New NotSupportedException($"Unsupported JSON element type: {element.ValueKind}")
+        End Select
+    End Function
+
+    Private Shared Function ProcessObject(element As JsonElement) As ExpandoObject
+        Dim obj = New ExpandoObject()
+        Dim dict = TryCast(obj, IDictionary(Of String, Object))
+
+        For Each propertyElement In element.EnumerateObject()
+            dict(propertyElement.Name) = ProcessElement(propertyElement.Value)
+        Next
+
+        Return obj
+    End Function
+
+    Private Shared Function ProcessArray(element As JsonElement) As List(Of Object)
+        Dim list = New List(Of Object)()
+
+        For Each item In element.EnumerateArray()
+            list.Add(ProcessElement(item))
+        Next
+
+        Return list
+    End Function
 End Class
