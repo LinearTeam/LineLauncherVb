@@ -96,6 +96,9 @@
     <Compile Include="Pages\Info.xaml.vb">
       <DependentUpon>Info.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Mods.xaml.vb">
+      <DependentUpon>Mods.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\Settings.xaml.vb">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
@@ -132,6 +135,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Info.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Mods.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -198,6 +205,21 @@
     <Resource Include="Resources\images\huohuo.jpg" />
     <Resource Include="Resources\images\LMC.png" />
     <Resource Include="Resources\images\rock_46.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\images\Sodium.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\images\jei.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\images\fabricapi.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\images\iris.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\images\oculus.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

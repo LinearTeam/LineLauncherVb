@@ -1,10 +1,12 @@
-﻿Imports iNKORE.UI.WPF.Helpers
+﻿Imports System.Threading
+Imports iNKORE.UI.WPF.Helpers
 Imports iNKORE.UI.WPF.Modern.Media.Animation
 
 Class MainWindow
     Private HomePage As New Home()
     Private AccountsPage As New Accounts()
     Private GamesPage As New Games()
+    Private ModsPage As New Mods()
     Private GameManage As New GameManagement()
     Private DownloadsPage As New DownloadTasks()
     Private SettingsPage As New Settings()
@@ -12,7 +14,7 @@ Class MainWindow
 
     Public Sub Navigate(page As Page)
         If page IsNot Nothing Then
-            MainFrame.Navigate(page, infoOverride:=New DrillInNavigationTransitionInfo)
+            MainFrame.Navigate(page)
             MainNavigation.Header = page.Title
         End If
     End Sub
@@ -32,6 +34,8 @@ Class MainWindow
             target = DownloadsPage
         ElseIf page.Equals(AboutIndicator) Then
             target = InfoPage
+        ElseIf page.Equals(ModIndicator) Then
+            target = ModsPage
         End If
         Navigate(target)
     End Sub

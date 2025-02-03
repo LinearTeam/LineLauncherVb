@@ -31,6 +31,12 @@
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
 
+                <muxc:NavigationViewItem Content="模组" IsSelected="True" x:Name="ModIndicator" >
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Puzzle}"/>
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+
                 <muxc:NavigationViewItem Content="账户" x:Name="AccountsIndicator">
                     <muxc:NavigationViewItem.Icon>
                         <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.People}"/>

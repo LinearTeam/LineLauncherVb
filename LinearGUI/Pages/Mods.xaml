@@ -1,0 +1,110 @@
+﻿<Page x:Class="Mods"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:LineMinecraftLauncher"
+      xmlns:muxc="http://schemas.inkore.net/lib/ui/wpf/modern"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="模组">
+    <StackPanel Margin="39, 0, 0, 0">
+        <muxc:FlipView x:Name="ModsFlipper" Margin="10, 10, 10, 10">
+            <StackPanel Margin="8">
+                <Grid Height="290">
+                    <Image Source="..\Resources\images\Jei.png" HorizontalAlignment="Right" />
+                    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" >
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,5">
+                            <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Download}" Margin="20, 0, 0, 0" Foreground="CornflowerBlue"/>
+                            <TextBlock Foreground="CornflowerBlue" Text="4.01 亿次下载" Margin="5, 0, 0, 0"/>
+                        </StackPanel>
+                        <TextBlock Text="JEI 物品管理器" Height="50" FontSize="30" Margin="20,0,0,5" FontWeight="Bold" />
+                        <TextBlock Text="广为人知的物品管理器" FontSize="15" Margin="20, 0, 0, 5"/>
+                        <Button Margin="20, 5, 0, 5">
+                            <StackPanel Orientation="Horizontal">
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.ChevronRight}" Margin="0, 0, 5, 0"/>
+                                <TextBlock Text="查看详情"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+            <StackPanel Margin="8">
+                <Grid Height="290">
+                    <Image Source="..\Resources\images\fabricapi.png" HorizontalAlignment="Right" />
+                    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" >
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,5">
+                            <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Download}" Margin="20, 0, 0, 0" Foreground="CornflowerBlue"/>
+                            <TextBlock Foreground="CornflowerBlue" Text="3613 万次下载" Margin="5, 0, 0, 0"/>
+                        </StackPanel>
+                        <TextBlock Text="Fabric Api" Height="50" FontSize="30" Margin="20,0,0,0" FontWeight="Bold" />
+                        <TextBlock Text="提供开发者一套方便的工具" FontSize="15" Margin="20, 0, 0, 5"/>
+                        <Button Margin="20,5,0,5">
+                            <StackPanel Orientation="Horizontal">
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.ChevronRight}" Margin="0, 0, 5, 0"/>
+                                <TextBlock Text="查看详情"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+            <StackPanel Margin="8">
+                <Grid Height="290">
+                    <Image Source="..\Resources\images\Sodium.jpg" HorizontalAlignment="Right" />
+                    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" >
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,5">
+                            <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Download}" Margin="20, 0, 0, 0" Foreground="CornflowerBlue"/>
+                            <TextBlock Foreground="CornflowerBlue" Text="3377 万次下载" Margin="5, 0, 0, 0"/>
+                        </StackPanel>
+                        <TextBlock Text="Sodium" Height="50" FontSize="30" Margin="20,0,0,0" FontWeight="Bold" />
+                        <TextBlock Text="强大的渲染引擎暨优化模组" FontSize="15" Margin="20, 0, 0, 5"/>
+                        <Button Margin="20,5,0,5">
+                            <StackPanel Orientation="Horizontal">
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.ChevronRight}" Margin="0, 0, 5, 0"/>
+                                <TextBlock Text="查看详情"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+            <StackPanel Margin="8">
+                <Grid Height="290">
+                    <Image Source="..\Resources\images\iris.jpg" HorizontalAlignment="Right" />
+                    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" >
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,5">
+                            <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Download}" Margin="20, 0, 0, 0" Foreground="CornflowerBlue"/>
+                            <TextBlock Foreground="CornflowerBlue" Text="2562 万次下载" Margin="5, 0, 0, 0"/>
+                        </StackPanel>
+                        <TextBlock Text="Iris Shaders" Height="50" FontSize="30" Margin="20,0,0,0" FontWeight="Bold" />
+                        <TextBlock Text="开源的高性能着色器" FontSize="15" Margin="20, 0, 0, 5"/>
+                        <Button Margin="20,5,0,5">
+                            <StackPanel Orientation="Horizontal">
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.ChevronRight}" Margin="0, 0, 5, 0"/>
+                                <TextBlock Text="查看详情"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+            <StackPanel Margin="8">
+                <Grid Height="290">
+                    <Image Source="..\Resources\images\oculus.png" HorizontalAlignment="Right" />
+                    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" >
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,5">
+                            <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.Download}" Margin="20, 0, 0, 0" Foreground="CornflowerBlue"/>
+                            <TextBlock Foreground="CornflowerBlue" Text="7374 万次下载" Margin="5, 0, 0, 0"/>
+                        </StackPanel>
+                        <TextBlock Text="Oculus" Height="50" FontSize="30" Margin="20,0,0,0" FontWeight="Bold" />
+                        <TextBlock Text="Iris 的非官方分支" FontSize="15" Margin="20, 0, 0, 5"/>
+                        <Button Margin="20,5,0,5">
+                            <StackPanel Orientation="Horizontal">
+                                <muxc:FontIcon Icon="{x:Static muxc:SegoeFluentIcons.ChevronRight}" Margin="0, 0, 5, 0"/>
+                                <TextBlock Text="查看详情"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </muxc:FlipView>
+    </StackPanel>
+</Page>
