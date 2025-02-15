@@ -1,15 +1,21 @@
-﻿Public Class MicrosoftOAuthenticator
+﻿Imports System.Text.Json.Nodes
+
+Public Class MicrosoftOAuthenticator
     Private ReadOnly _poster As New HttpUtils()
 
-    Private _refreshToken As String
     Private _code As String
     Private _accessToken As String
     Private _uhs As String
     Private _XBLToken As String
     Private _XSTSToken As String
+    Private _jwt As String
 
     Private Const comsumer = "consumers" '致敬传奇 comsumers 和 consumer
-    Public Sub LoginAuthenticate()
+
+    ''' <summary>
+    ''' 登录
+    ''' </summary>
+    Public Sub Login()
         Dim server As New LocalServerProvider()
         server.StartServer()
         _code = LocalServerProvider.GetResponseData()
@@ -29,11 +35,13 @@
         Dim newRefreshToken = result.refresh_token
         _accessToken = result.access_token
 
-        XBLVerification()
-        XSTSVerification()
+        VerifyXBL()
+        VerifyXSTS()
+        VerifyMc()
+        TryGetMcArchive()
     End Sub
 
-    Private Sub XBLVerification()
+    Private Sub VerifyXBL()
         Dim url = "https://user.auth.xboxlive.com/user/authenticate"
         Dim data = <string>{
         "Properties": {
@@ -51,7 +59,7 @@
         _XBLToken = parsedRes.Token
     End Sub
 
-    Private Sub XSTSVerification()
+    Private Sub VerifyXSTS()
         Dim url = "https://xsts.auth.xboxlive.com/xsts/authorize"
         Dim data = <string>{
        "Properties": {
@@ -69,12 +77,35 @@
         _XSTSToken = parsedRes.Token
     End Sub
 
-    Private Sub MCVerification()
+    Private Sub VerifyMc()
         Dim url = "https://api.minecraftservices.com/authentication/login_with_xbox"
         Dim data = <string>{
             "identityToken": "XBL3.0 x=uhs;xstsToken"
         }</string>.Value.Replace("uhs", _uhs).Replace("xstsToken", _XSTSToken)
-        Dim response = _poster.PostWithJson(data, url, "application/json", "application/x-www-form-urlencoded")
-        'TODO: Check if the user has purchased the game
+        Dim response = _poster.PostWithJson(data, url, "application/json", "application/json").Result
+        _jwt = JsonUtils.GetValueFromJson(response, "access_token")
     End Sub
+
+    Private Function TryGetMcArchive(Optional isGetInfo As Boolean = False)
+        Dim url = "https://api.minecraftservices.com/minecraft/profile"
+        Dim header = <string>{
+            "Authorization": "Bearer jwt"
+        }</string>.Value.Replace("jwt", _jwt)
+        Dim response = _poster.GetWithAuth($"Bearer {_jwt}", url, "application/json").Result
+        If response.Contains("errorType") Then
+            If JsonUtils.GetValueFromJson(response, "errorType") = "NOT_FOUND" Then
+                Throw New Exception("The account is not available.")
+            End If
+        End If
+
+        If isGetInfo Then
+            Dim info As New Dictionary(Of String, String) From {
+                {"name", JsonUtils.GetValueFromJson(response, "name")},
+                {"uuid", JsonUtils.GetValueFromJson(response, "id")},
+                {"skinUrl", JsonUtils.GetValueFromJson(response, "skins[0].url")}
+            }
+            Return info
+        End If
+        Return True
+    End Function
 End Class
