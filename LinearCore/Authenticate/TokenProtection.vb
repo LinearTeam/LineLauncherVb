@@ -20,14 +20,16 @@ Public Class TokenProtection
 
     Private Shared Function CalculateSha1(psword As String) As String
         Dim encPassword As String = ""
-        Dim sha As New SHA1CryptoServiceProvider()
-        Dim bytesToHash() As Byte
-        bytesToHash = System.Text.Encoding.ASCII.GetBytes(psword)
-        bytesToHash = sha.ComputeHash(bytesToHash)
-        For Each singleByte As Byte In bytesToHash
-            encPassword += singleByte.ToString("x2")
-        Next
-        sha.Clear()
+        Using sha As SHA1 = SHA1.Create()
+            Dim bytesToHash() As Byte
+            bytesToHash = System.Text.Encoding.ASCII.GetBytes(psword)
+            bytesToHash = sha.ComputeHash(bytesToHash)
+            For Each singleByte As Byte In bytesToHash
+                encPassword += singleByte.ToString("x2")
+            Next
+            sha.Clear()
+        End Using
+
         Return encPassword
     End Function
 

@@ -17,6 +17,7 @@ Public Class MinecraftVersion
         Me.url = url
     End Sub
 End Class
+
 Public Class NetworkException
     Inherits Exception
     Public Sub New()
@@ -51,19 +52,20 @@ End Class
 ''' 游戏下载器
 ''' </summary>
 Public Class GameDownloader
-    Private ReadOnly minecraftVersions = New List(Of MinecraftVersion)
-    Private ReadOnly client As New HttpClient()
+    Private ReadOnly _minecraftVersions = New List(Of MinecraftVersion)
+    Private ReadOnly _client As New HttpClient()
     Private ReadOnly _hostProvider As HostProvider
     Private Shared _httpUtils As HttpUtils
 
-    Private Const MaxRetries = 20
-    Private successCount = 0
-    Private failureCount = 0
+    Private Const _MAX_RETRIES = 20
+    Private ReadOnly _successCount = 0
+    Private ReadOnly _failureCount = 0
 
     Public mirror As String
-    Private totalCount As Integer
-    Private ReadOnly semaphore
-    Private ReadOnly batchSize As Integer
+    Private _totalCount As Integer
+    Private ReadOnly _batchSize As Integer
+
+    Private ReadOnly _semaphore
 
     ''' <summary>
     ''' 实例化一个游戏下载器
@@ -73,15 +75,15 @@ Public Class GameDownloader
     ''' <param name="batchSize">下载器使用了分批下载的逻辑，批数默认为500，不建议改动</param>
     Public Sub New(mirror As String, Optional maxConcurrent As Integer = 64, Optional batchSize As Integer = 500)
         Me.mirror = mirror
-        Me.batchSize = batchSize
+        Me._batchSize = batchSize
 
         _hostProvider = New HostProvider(mirror)
         _httpUtils = New HttpUtils()
-        semaphore = New SemaphoreSlim(maxConcurrent)
+        _semaphore = New SemaphoreSlim(maxConcurrent)
     End Sub
     Private Async Function GetVersionManifest() As Task(Of String)
         Try
-            Dim content = Await _httpUtils.GetAsync($"{_hostProvider.Mirrors("pistonMeta")}/mc/game/version_manifest.json")
+            Dim content = Await _httpUtils.GetAsync($"{_hostProvider.mirrors("pistonMeta")}/mc/game/version_manifest.json")
             Return content
         Catch ex As Exception
             Throw New NetworkException()
@@ -96,12 +98,12 @@ Public Class GameDownloader
             Dim releaseTime = JsonUtils.GetValueFromJson(i.ToString(), "releaseTime")
             Dim url = JsonUtils.GetValueFromJson(i.ToString(), "url")
             Dim type = JsonUtils.GetValueFromJson(i.ToString(), "type")
-            minecraftVersions.Add(New MinecraftVersion(id, releaseTime, type, url))
+            _minecraftVersions.Add(New MinecraftVersion(id, releaseTime, type, url))
         Next
     End Sub
 
     Private Function SearchTheVersion(version As String) As MinecraftVersion
-        For Each i In minecraftVersions
+        For Each i In _minecraftVersions
             If version = i.name Then
                 Return i
             End If
@@ -164,29 +166,29 @@ Public Class GameDownloader
     End Function
 
     Private Async Function DownloadFileAsync(files As List(Of MinecraftFile)) As Task
-        totalCount = files.Count
+        _totalCount = files.Count
         Dim stopwatch As Stopwatch = Stopwatch.StartNew()
 
-        For i As Integer = 0 To totalCount - 1 Step batchSize
-            Dim batchFiles = files.Skip(i).Take(batchSize).ToList()
+        For i As Integer = 0 To _totalCount - 1 Step _batchSize
+            Dim batchFiles = files.Skip(i).Take(_batchSize).ToList()
             Dim tasks As New ConcurrentBag(Of Task)()
             For Each file In batchFiles
                 tasks.Add(ProcessFileWithSemaphoreAsync(file))
             Next
             Await Task.WhenAll(tasks)
-            Console.WriteLine($"Completed batch {Math.Ceiling((i + batchSize) / batchSize)}: {batchFiles.Count} files processed.")
+            Console.WriteLine($"Completed batch {Math.Ceiling((i + _batchSize) / _batchSize)}: {batchFiles.Count} files processed.")
         Next
 
         stopwatch.Stop()
-        Console.WriteLine($"Finished in {stopwatch.Elapsed.TotalSeconds}s. Total {totalCount} file(s), {successCount} passed, {failureCount} missed.")
+        Console.WriteLine($"Finished in {stopwatch.Elapsed.TotalSeconds}s. Total {_totalCount} file(s), {_successCount} passed, {_failureCount} missed.")
     End Function
 
     Private Async Function ProcessFileWithSemaphoreAsync(file As MinecraftFile) As Task
-        Await semaphore.WaitAsync()
+        Await _semaphore.WaitAsync()
         Try
             Await ProcessFileAsync(file)
         Finally
-            semaphore.Release()
+            _semaphore.Release()
         End Try
     End Function
 
@@ -198,8 +200,8 @@ Public Class GameDownloader
         If File.Exists(fileInfo.path) Then
             If VerifyFile(fileInfo.path, fileInfo.sha1) Then
                 SyncLock Me
-                    Interlocked.Increment(successCount)
-                    Console.WriteLine($"File already exists: {fileInfo.path}, {totalCount - successCount} remaining")
+                    Interlocked.Increment(_successCount)
+                    Console.WriteLine($"File already exists: {fileInfo.path}, {_totalCount - _successCount} remaining")
                 End SyncLock
                 Return
             Else
@@ -211,9 +213,9 @@ Public Class GameDownloader
         Dim attempts As Integer = 0
         Dim success As Boolean = False
 
-        While attempts < MaxRetries AndAlso Not success
+        While attempts < _MAX_RETRIES AndAlso Not success
             Try
-                Dim response As HttpResponseMessage = Await client.GetAsync(fileInfo.url)
+                Dim response As HttpResponseMessage = Await _client.GetAsync(fileInfo.url)
                 response.EnsureSuccessStatusCode()
 
                 Using fileStream As New FileStream(fileInfo.path, FileMode.Create, FileAccess.Write, FileShare.None)
@@ -223,17 +225,17 @@ Public Class GameDownloader
                 If VerifyFile(fileInfo.path, fileInfo.sha1) Then
                     success = True
                     SyncLock Me
-                        Interlocked.Increment(successCount)
+                        Interlocked.Increment(_successCount)
                     End SyncLock
                 Else
                     Throw New Exception($"Failed to verify sha1 of {fileInfo.path}")
                 End If
             Catch ex As Exception
                 attempts += 1
-                Console.WriteLine($"Failed: {fileInfo.url} to {fileInfo.path}, due to {ex} (retry: {attempts}/{MaxRetries})")
-                If attempts >= MaxRetries Then
+                Console.WriteLine($"Failed: {fileInfo.url} to {fileInfo.path}, due to {ex} (retry: {attempts}/{_MAX_RETRIES})")
+                If attempts >= _MAX_RETRIES Then
                     SyncLock Me
-                        Interlocked.Increment(failureCount)
+                        Interlocked.Increment(_failureCount)
                     End SyncLock
                 End If
             End Try
@@ -243,7 +245,7 @@ Public Class GameDownloader
 
     Public Sub LogDownloadStatusAsync(file As MinecraftFile)
         SyncLock Me
-            Dim remainingFiles As Integer = totalCount - (successCount + failureCount)
+            Dim remainingFiles As Integer = _totalCount - (_successCount + _failureCount)
             Console.WriteLine($"Downloaded: {file.path}, {remainingFiles} remaining")
         End SyncLock
     End Sub

@@ -7,7 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Resource Include="Data\Accounts.line" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Net\MirrorConfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="LinearCore.sln" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="9.0.1" />
   </ItemGroup>
 
 </Project>
