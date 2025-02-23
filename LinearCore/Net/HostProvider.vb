@@ -16,12 +16,22 @@ Public Class UndefinedMirrorException
     End Sub
 End Class
 
+Public Class Mirror
+    Public pistonMeta As String
+    Public pistonData As String
+    Public laucherMeta As String
+    Public launcher As String
+    Public resources As String
+    Public libraries As String
+
+    Public fabric As String
+End Class
+
 ''' <summary>
 ''' 根据 Json 中的配置文件提供所需源的信息
 ''' </summary>
 Public Class HostProvider
-    Public mirrors As New Dictionary(Of String, String)
-
+    Public provideMirror As New Mirror()
     Private ReadOnly _jsonParser As JsonUtils
 
     ''' <summary>
@@ -36,12 +46,13 @@ Public Class HostProvider
                 _jsonParser = New JsonUtils((content))
                 Dim mirrorsList = _jsonParser.GetNestedKeys("mirrors")
                 If mirrorsList.Contains(mirror) Then
-                    mirrors.Add("pistonMeta", _jsonParser.GetNestedValue($"mirrors.{mirror}.pistonMeta"))
-                    mirrors.Add("pistonData", _jsonParser.GetNestedValue($"mirrors.{mirror}.pistonData"))
-                    mirrors.Add("launcherMeta", _jsonParser.GetNestedValue($"mirrors.{mirror}.launcherMeta"))
-                    mirrors.Add("launcher", _jsonParser.GetNestedValue($"mirrors.{mirror}.launcher"))
-                    mirrors.Add("resources", _jsonParser.GetNestedValue($"mirrors.{mirror}.resources"))
-                    mirrors.Add("libraries", _jsonParser.GetNestedValue($"mirrors.{mirror}.libraries"))
+                    provideMirror.pistonMeta = _jsonParser.GetNestedValue($"mirrors.{mirror}.pistonMeta")
+                    provideMirror.pistonData = _jsonParser.GetNestedValue($"mirrors.{mirror}.pistonData")
+                    provideMirror.laucherMeta = _jsonParser.GetNestedValue($"mirrors.{mirror}.launcherMeta")
+                    provideMirror.launcher = _jsonParser.GetNestedValue($"mirrors.{mirror}.launcher")
+                    provideMirror.resources = _jsonParser.GetNestedValue($"mirrors.{mirror}.resources")
+                    provideMirror.libraries = _jsonParser.GetNestedValue($"mirrors.{mirror}.libraries")
+                    provideMirror.fabric = _jsonParser.GetNestedValue($"mirrors.{mirror}.fabric")
                 Else
                     Throw New UndefinedMirrorException()
                 End If
@@ -62,17 +73,17 @@ Public Class HostProvider
 
         Select Case hostUrl
             Case "piston-meta.mojang"
-                Return $"{mirrors("pistonMeta")}{pathUrl}"
+                Return $"{provideMirror.pistonMeta}{pathUrl}"
             Case "piston-data.mojang"
-                Return $"{mirrors("pistonData")}{pathUrl}"
+                Return $"{provideMirror.pistonData}{pathUrl}"
             Case "launchermeta.mojang"
-                Return $"{mirrors("launcherMeta")}{pathUrl}"
+                Return $"{provideMirror.laucherMeta}{pathUrl}"
             Case "launcher.mojang"
-                Return $"{mirrors("launcher")}{pathUrl}"
+                Return $"{provideMirror.launcher}{pathUrl}"
             Case "resources.download.minecraft"
-                Return $"{mirrors("resources")}{pathUrl}"
+                Return $"{provideMirror.resources}{pathUrl}"
             Case "libraries.minecraft"
-                Return $"{mirrors("libraries")}{pathUrl}"
+                Return $"{provideMirror.libraries}{pathUrl}"
             Case Else
                 Throw New Exception($"Illegal url: {url}")
         End Select

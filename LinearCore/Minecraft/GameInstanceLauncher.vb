@@ -1,12 +1,12 @@
 ﻿Imports System.IO
 Imports System.IO.Compression
+Imports System.Runtime.InteropServices
+Imports System.Security.Cryptography.X509Certificates
 
 Public Class MemoryCtrl
-    Public min As String
-    Public max As String
+    Public min, max As String
 End Class
 
-'仅作数据存储，并不重要
 Public Class GeneralArgs
     Private Const _quote = Chr(34)
     Public literal As String

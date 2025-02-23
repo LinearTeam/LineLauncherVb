@@ -83,7 +83,7 @@ Public Class GameDownloader
     End Sub
     Private Async Function GetVersionManifest() As Task(Of String)
         Try
-            Dim content = Await _httpUtils.GetAsync($"{_hostProvider.mirrors("pistonMeta")}/mc/game/version_manifest.json")
+            Dim content = Await _httpUtils.GetAsync($"{_hostProvider.provideMirror.pistonMeta}/mc/game/version_manifest.json")
             Return content
         Catch ex As Exception
             Throw New NetworkException()

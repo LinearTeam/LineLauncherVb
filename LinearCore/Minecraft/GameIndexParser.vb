@@ -137,7 +137,7 @@ Public Class GameIndexParser
             Dim res As New MinecraftFile()
             Dim hash = resJsonParser.GetNestedValue($"objects|{i}|hash", "|")
             Dim path = $"{root}\assets\objects\{Left(hash, 2)}\{hash}"
-            Dim url = $"{_hostProvider.Mirrors("resources")}/{Left(hash, 2)}/{hash}"
+            Dim url = $"{_hostProvider.provideMirror.resources}/{Left(hash, 2)}/{hash}"
 
             res.path = path
             res.sha1 = hash

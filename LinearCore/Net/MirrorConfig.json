@@ -6,7 +6,8 @@
       "launcherMeta": "https://launchermeta.mojang.com",
       "launcher": "https://launcher.mojang.com",
       "resources": "https://resources.download.minecraft.net",
-      "libraries": "https://libraries.minecraft.net"
+      "libraries": "https://libraries.minecraft.net",
+      "fabric": "https://meta.fabricmc.net/v2/versions"
     },
 
     "BmclApi": {
@@ -15,16 +16,8 @@
       "launcherMeta": "https://bmclapi2.bangbang93.com",
       "launcher": "https://bmclapi2.bangbang93.com",
       "resources": "https://bmclapi2.bangbang93.com/assets",
-      "libraries": "https://bmclapi2.bangbang93.com/maven"
-    },
-
-    "LineMirror": {
-      "pistonMeta": "https://lm.icecreamteam.win:440/launcher",
-      "pistonData": "https://lm.icecreamteam.win:440/launcher",
-      "launcherMeta": "https://lm.icecreamteam.win:440/launchermeta",
-      "launcher": "https://lm.icecreamteam.win:440/launcher",
-      "resources": "https://lm.icecreamteam.win:440/assets",
-      "libraries": "https://lm.icecreamteam.win:440/libraries"
+      "libraries": "https://bmclapi2.bangbang93.com/maven",
+      "fabric": "https://bmclapi2.bangbang93.com/fabric-meta/v2/versions"
     }
   }
 }
