@@ -78,10 +78,10 @@ Class FabricIndexProvider
             parsedVanillaJson.libraries.Add(library)
         Next
 
-        Dim returns As Object = New ExpandoObject()
-
-        returns.combinedJson = combinedFabricJson
-        returns.files = fabricFiles
+        Dim returns As New With {
+            .combinedJson = parsedVanillaJson,
+            .files = fabricFiles
+        }
 
         Return returns
     End Function
