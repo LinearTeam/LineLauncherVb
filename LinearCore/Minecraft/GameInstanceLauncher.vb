@@ -7,7 +7,7 @@ Public Class MemoryCtrl
     Public min, max As String
 End Class
 
-Public Class GeneralArgs
+Public Class GeneralParameters
     Private Const _quote = Chr(34)
     Public literal As String
 
@@ -33,7 +33,7 @@ Public Class GeneralArgs
     End Function
 End Class
 
-Public Class ClassPathArgument
+Public Class ClassPathParameter
     Private literal As String = Chr(34)
     Private isAllowToAdd = True
     Private isClosed = False
@@ -62,13 +62,13 @@ Public Class ClassPathArgument
 End Class
 
 ''' <summary>
-''' 游戏实例启动器, 依次需要 游戏根目录 版本 用户名 java路径 内存 窗体高宽 access token（在线登录，可选）
+''' 游戏实例启动器, 依次需要 游戏根目录 版本 用户名 java路径 内存 窗体高宽 access token, uuid（在线登录，可选）
 ''' </summary>
 Public Class GameInstanceLauncher
     Public root, version, username, java As String
     Public memory As MemoryCtrl
     Public windowHeight, windowWidth As Integer
-    Public accessToken As String
+    Public accessToken, uuid As String
 
     Private Sub Unpress(source As String)
         Dim targetFolder = $"{root}\versions\{version}\{version}-natives"
@@ -92,7 +92,7 @@ Public Class GameInstanceLauncher
 
     Public Sub LaunchGame()
         Dim indexes = GameIndexParser.ParseIndex(version, $"{root}\versions\{version}\{version}.json", root, "Mojang")
-        Dim cp As New ClassPathArgument()
+        Dim cp As New ClassPathParameter()
         For Each i In indexes
             If Not i.isNative And Not i.isResources Then
                 cp.AddItem(i.path) '加入 artifact
@@ -109,10 +109,11 @@ Public Class GameInstanceLauncher
         Next
         cp.Close()
 
-        Dim mainClass = JsonUtils.GetValueFromJson(File.ReadAllText($"{root}\versions\{version}\{version}.json"), "mainClass")
-        Dim indexId = JsonUtils.GetValueFromJson(File.ReadAllText($"{root}\versions\{version}\{version}.json"), "assetIndex.id")
+        Dim tempVersionJson = JsonUtils.Parse(File.ReadAllText($"{root}\versions\{version}\{version}.json"))
+        Dim mainClass = tempVersionJson.mainClass
+        Dim indexId = tempVersionJson.assetIndex.id
 
-        Dim commands As New GeneralArgs()
+        Dim commands As New GeneralParameters()
 
         'java
         commands.AddPair("java", Nothing, java)
@@ -141,8 +142,15 @@ Public Class GameInstanceLauncher
         commands.AddPair("mc", "gameDir", $"{root}\versions\{version}")
         commands.AddPair("mc", "assetsDir", $"{root}\assets")
         commands.AddPair("mc", "assetIndex", indexId)
-        commands.AddPair("mc", "uuid", "00000000-0000-0000-0000-00000000000")
-        commands.AddPair("mc", "accessToken", "1241258925")
+
+        If accessToken IsNot Nothing And uuid IsNot Nothing Then
+            commands.AddPair("mc", "uuid", uuid)
+            commands.AddPair("mc", "accessToken", accessToken)
+        Else
+            commands.AddPair("mc", "uuid", "00000000-0000-0000-0000-00000000000")
+            commands.AddPair("mc", "accessToken", "1241258925")
+        End If
+
         commands.AddPair("mc", "clientId", "")
         commands.AddPair("mc", "xuid", "")
         commands.AddPair("mc", "userType", "Legacy")

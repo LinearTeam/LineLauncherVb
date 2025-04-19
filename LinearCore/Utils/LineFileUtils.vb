@@ -3,7 +3,7 @@ Imports System.Text.RegularExpressions
 
 Public Class LineFileUtils
     ' |Key|:|Value|
-    Private Const _pattern As String = "\|(?<key>[^|]+)\|:\|(?<value>[^|]+)\|"
+    Private Const _Pattern As String = "\|(?<key>[^|]+)\|:\|(?<value>[^|]+)\|"
     Public Shared Function GetKeySet(ByVal path As String, ByVal section As String) As List(Of String)
         Dim res As New List(Of String)()
         If Not File.Exists(path) Then
@@ -28,7 +28,7 @@ Public Class LineFileUtils
             End If
 
             If insection Then
-                Dim match = Regex.Match(line, _pattern)
+                Dim match = Regex.Match(line, _Pattern)
                 If match.Success AndAlso Not String.IsNullOrEmpty(match.Groups("key").Value) Then
                     res.Add(match.Groups("key").Value)
                 End If
@@ -126,7 +126,7 @@ Public Class LineFileUtils
             End If
 
             If insection Then
-                Dim match = Regex.Match(line, _pattern)
+                Dim match = Regex.Match(line, _Pattern)
                 If match.Success AndAlso match.Groups("key").Value = key Then
                     keyValue = match.Groups("value").Value
                     Exit For
@@ -170,7 +170,7 @@ Public Class LineFileUtils
             End If
 
             If insection Then
-                Dim match = Regex.Match(lines(i), _pattern)
+                Dim match = Regex.Match(lines(i), _Pattern)
                 If match.Success AndAlso match.Groups("key").Value = key Then
                     lines(i) = $"|{key}|:|{value}|"
                     keyFound = True

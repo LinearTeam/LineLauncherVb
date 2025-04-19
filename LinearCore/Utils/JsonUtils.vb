@@ -1,5 +1,14 @@
 ﻿Imports System.Dynamic
+Imports System.Runtime.CompilerServices
+Imports System.Text.Encodings.Web
 Imports System.Text.Json
+Imports System.Text.Json.Serialization
+
+' 此模块容易误用
+' 对于单次解析, 带有以格式化字符串形式的 JsonPath（非必须），使用 GetValueFromJson
+' 对于重复解析，带有以格式化字符串形式的 JsonPath（非必须），新建 JsonUtils 实例后使用 GetNestedValue
+' 对于重复解析，不带有以格式化字符串形式的 JsonPath（必须），使用 Parse 后以访问成员的形式访问 Json
+' 在合适的情况下，允许换用，但是保证功能正常
 
 ''' <summary>
 ''' 动态 Json 解析器
@@ -12,6 +21,13 @@ Public Class JsonUtils
     Private ReadOnly jsonDocument As JsonDocument
     Private Shared ReadOnly separator As Char() = New Char() {"."c}
     Private Shared ReadOnly separatorArray As Char() = New Char() {"["c, "]"c}
+
+    Private Shared ReadOnly DefaultJsonOptions As New JsonSerializerOptions With {
+        .WriteIndented = True,
+        .PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        .DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        .Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    }
 
     ''' <param name="jsonString">
     ''' 字符串形式的 Json 内容
@@ -182,10 +198,6 @@ Public Class JsonUtils
         Return keys
     End Function
 
-    Protected Overrides Sub Finalize()
-        jsonDocument?.Dispose()
-        MyBase.Finalize()
-    End Sub
 
     Public Shared Function Parse(jsonString As String) As Object
         Dim document = JsonDocument.Parse(jsonString)
@@ -195,6 +207,44 @@ Public Class JsonUtils
             document.Dispose()
         End Try
     End Function
+
+    Public Shared Function Serialize(expando As ExpandoObject) As String
+        Return JsonSerializer.Serialize(ConvertExpandoToDictionary(expando), DefaultJsonOptions)
+    End Function
+
+    Private Shared Function ConvertExpandoToDictionary(expando As ExpandoObject) As Dictionary(Of String, Object)
+        Dim dict = New Dictionary(Of String, Object)(StringComparer.OrdinalIgnoreCase)
+
+        For Each kvp In DirectCast(expando, IDictionary(Of String, Object))
+            dict(kvp.Key) = ConvertExpandoValue(kvp.Value)
+        Next
+
+        Return dict
+    End Function
+
+    Private Shared Function ConvertExpandoValue(value As Object) As Object
+        If value Is Nothing Then Return Nothing
+
+        If TypeOf value Is ExpandoObject Then
+            Return ConvertExpandoToDictionary(DirectCast(value, ExpandoObject))
+        ElseIf TypeOf value Is List(Of Object) Then
+            Return ConvertExpandoList(DirectCast(value, List(Of Object)))
+        Else
+            Return value
+        End If
+    End Function
+
+    Private Shared Function ConvertExpandoList(list As List(Of Object)) As List(Of Object)
+        Dim newList = New List(Of Object)()
+
+        For Each item In list
+            newList.Add(ConvertExpandoValue(item))
+        Next
+
+        Return newList
+    End Function
+
+
 
     Private Shared Function ProcessElement(element As JsonElement) As Object
         Select Case element.ValueKind
@@ -235,4 +285,10 @@ Public Class JsonUtils
 
         Return list
     End Function
+
+    Protected Overrides Sub Finalize()
+        jsonDocument?.Dispose()
+        MyBase.Finalize()
+    End Sub
+
 End Class

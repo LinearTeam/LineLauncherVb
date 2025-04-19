@@ -74,7 +74,6 @@ Public Class MicrosoftOAuthenticator
             accountInfo = profileInfo
         Catch ex As Exception
             Console.WriteLine($"登录失败: {ex.Message}")
-            Throw
         End Try
     End Sub
 
@@ -195,7 +194,6 @@ Public Class MicrosoftOAuthenticator
             {"skinUrl", JsonUtils.GetValueFromJson(profileResponse, "skins[0].url")}
         }
     End Function
-
 
     ''' <summary>
     ''' 释放资源

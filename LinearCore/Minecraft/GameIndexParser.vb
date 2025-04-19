@@ -8,6 +8,7 @@ Public Class MinecraftFile
     Public isNative As Boolean = False
     Public isResources As Boolean = False
     Public isClient As Boolean = False
+    Public doNotDownload As Boolean = False
 End Class
 
 Public Class GameIndexParser
@@ -67,6 +68,7 @@ Public Class GameIndexParser
         End If
         Return False
     End Function
+
     ''' <summary>
     ''' 解析一个特定版本的版本 Json 文件
     ''' </summary>
@@ -75,17 +77,32 @@ Public Class GameIndexParser
     ''' <returns></returns>
     Public Shared Function ParseIndex(customName As String, pathToVersionIndex As String, root As String, mirror As String) As List(Of MinecraftFile)
         Dim content = File.ReadAllText(pathToVersionIndex)
+        Dim parsedContent = JsonUtils.Parse(content)
         Dim indexId = JsonUtils.GetValueFromJson(content, "assetIndex.id")
         Dim pathToResourcesIndex = $"{root}\assets\indexes\{indexId}.json"
         Dim jsonParser = New JsonUtils(content)
         Dim _hostProvider = New HostProvider(mirror)
 
         Dim libraries = New List(Of MinecraftFile)
-        For Each i In jsonParser.GetArray("libraries")
-            If IsRightForCurrentPlatform(i.ToString()) Then '检查是否是 windows 平台
-                If IsNatives(i.ToString()) Then '检查是否是 natives
+        For Each library In jsonParser.GetArray("libraries")
+            If Not library.ToString().Contains("downloads") Then '判断第三方 mod 加载器文件
+                Dim parsedLib = JsonUtils.Parse(library.ToString())
+                Dim modLoaderFile As New MinecraftFile() With {
+                    .path = $"{root}\libraries\{parsedLib.path}",
+                    .sha1 = Nothing,
+                    .url = Nothing,
+                    .doNotDownload = True
+                }
+                libraries.Add(modLoaderFile)
+                Continue For
+            End If
+
+            If IsRightForCurrentPlatform(library.ToString()) Then '检查是否是 windows 平台
+                If IsNatives(library.ToString()) Then '检查是否是 natives
+
                     Dim native As New MinecraftFile()
-                    Dim classifierStr = GetValueFromJson(i.ToString(), $"downloads.classifiers")
+
+                    Dim classifierStr = GetValueFromJson(library.ToString(), $"downloads.classifiers")
                     Dim classifiersPath = GetValueFromJson(classifierStr, "natives-windows.path")
 
                     If classifiersPath IsNot Nothing Then '首先确定 classifiers 不为空（路径不为空代表它不为空）
@@ -100,13 +117,13 @@ Public Class GameIndexParser
                     End If
 
                     '如果在前面并没有退出，那么说明是新版本
-                    Dim artifactLikeClassifiersPath = GetValueFromJson(i.ToString(), "downloads.artifact.path")
+                    Dim artifactLikeClassifiersPath = GetValueFromJson(library.ToString(), "downloads.artifact.path")
 
                     If artifactLikeClassifiersPath IsNot Nothing Then '判断路径不为空，整体不为空
                         If IsRightArchitecture(artifactLikeClassifiersPath) Then '检查架构
                             native.path = $"{root}\libraries\{artifactLikeClassifiersPath}"
-                            native.sha1 = GetValueFromJson(i.ToString(), "downloads.artifact.sha1")
-                            native.url = _hostProvider.TransformToTargetMirror(GetValueFromJson(i.ToString(), "downloads.artifact.url"))
+                            native.sha1 = GetValueFromJson(library.ToString(), "downloads.artifact.sha1")
+                            native.url = _hostProvider.TransformToTargetMirror(GetValueFromJson(library.ToString(), "downloads.artifact.url"))
                             native.isNative = True
                             libraries.Add(native)
                         End If
@@ -115,15 +132,17 @@ Public Class GameIndexParser
                 End If
 
                 'artifact 判断逻辑
-                Dim library As New MinecraftFile()
-                Dim artifactStr = GetValueFromJson(i.ToString(), "downloads.artifact")
+                Dim artifactStr = GetValueFromJson(library.ToString(), "downloads.artifact")
                 Dim artifactPath = GetValueFromJson(artifactStr, "path")
                 If artifactPath IsNot Nothing Then
                     If IsRightArchitecture(artifactPath) Then
-                        library.path = $"{root}\libraries\{artifactPath}"
-                        library.sha1 = GetValueFromJson(artifactStr, "sha1")
-                        library.url = _hostProvider.TransformToTargetMirror(GetValueFromJson(artifactStr, "url"))
-                        libraries.Add(library)
+                        Dim artifactLibrary As New MinecraftFile() With {
+                            .path = $"{root}\libraries\{artifactPath}",
+                            .sha1 = GetValueFromJson(artifactStr, "sha1"),
+                            .url = _hostProvider.TransformToTargetMirror(GetValueFromJson(artifactStr, "url"))
+                        }
+
+                        libraries.Add(artifactLibrary)
                     End If
                 End If
             End If
@@ -131,18 +150,21 @@ Public Class GameIndexParser
 
         '资源判断逻辑
         Dim resources = New List(Of MinecraftFile)
-        Dim resJsonParser = New JsonUtils(File.ReadAllText(pathToResourcesIndex))
-        Dim keys = resJsonParser.GetNestedKeys("objects")
+
+        Dim ressourcesParser = New JsonUtils(File.ReadAllText(pathToResourcesIndex))
+        Dim keys = ressourcesParser.GetNestedKeys("objects")
         For Each i In keys
-            Dim res As New MinecraftFile()
-            Dim hash = resJsonParser.GetNestedValue($"objects|{i}|hash", "|")
+            Dim hash = ressourcesParser.GetNestedValue($"objects|{i}|hash", "|")
             Dim path = $"{root}\assets\objects\{Left(hash, 2)}\{hash}"
             Dim url = $"{_hostProvider.provideMirror.resources}/{Left(hash, 2)}/{hash}"
 
-            res.path = path
-            res.sha1 = hash
-            res.url = url
-            res.isResources = True
+            Dim res As New MinecraftFile() With {
+                .path = path,
+                .sha1 = hash,
+                .url = url,
+                .isResources = True
+            }
+
             resources.Add(res)
         Next
 

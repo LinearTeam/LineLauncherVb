@@ -58,8 +58,8 @@ Public Class GameDownloader
     Private Shared _httpUtils As HttpUtils
 
     Private Const _MAX_RETRIES = 20
-    Private ReadOnly _successCount = 0
-    Private ReadOnly _failureCount = 0
+    Private _successCount = 0
+    Private _failureCount = 0
 
     Public mirror As String
     Private _totalCount As Integer
@@ -162,6 +162,19 @@ Public Class GameDownloader
             root,
             mirror)
 
+        For Each file In files
+            If file.doNotDownload = True Then
+                files.Remove(file)
+            End If
+        Next
+
+        Await DownloadFileAsync(files)
+    End Function
+
+    Public Async Function DownloadFabricFiles(root As String, files As List(Of MinecraftFile)) As Task
+        For Each file In files
+            file.path = $"{root}/libraries/{file.path}"
+        Next
         Await DownloadFileAsync(files)
     End Function
 
@@ -221,14 +234,21 @@ Public Class GameDownloader
                 Using fileStream As New FileStream(fileInfo.path, FileMode.Create, FileAccess.Write, FileShare.None)
                     Await response.Content.CopyToAsync(fileStream)
                 End Using
-
-                If VerifyFile(fileInfo.path, fileInfo.sha1) Then
+                If fileInfo.sha1 IsNot Nothing Then
+                    If VerifyFile(fileInfo.path, fileInfo.sha1) Then
+                        success = True
+                        SyncLock Me
+                            Interlocked.Increment(_successCount)
+                        End SyncLock
+                    Else
+                        Throw New Exception($"Failed to verify sha1 of {fileInfo.path}")
+                    End If
+                Else
                     success = True
                     SyncLock Me
+                        Console.WriteLine($"Skipped verifying of {fileInfo.path}, because there is no hash to verify.")
                         Interlocked.Increment(_successCount)
                     End SyncLock
-                Else
-                    Throw New Exception($"Failed to verify sha1 of {fileInfo.path}")
                 End If
             Catch ex As Exception
                 attempts += 1
