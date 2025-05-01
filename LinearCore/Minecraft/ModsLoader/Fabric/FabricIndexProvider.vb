@@ -1,4 +1,5 @@
 ﻿Imports System.Dynamic
+Imports System.Xml.Schema
 
 Class FabricIndexProvider
     Private ReadOnly _httpUtils As New HttpUtils()

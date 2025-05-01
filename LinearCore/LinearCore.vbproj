@@ -4,13 +4,20 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>LinearCore</RootNamespace>
     <TargetFramework>net8.0</TargetFramework>
+    <OptionStrict>Off</OptionStrict>
+    <AnalysisLevel>none</AnalysisLevel>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Minecraft\CrashAnalyzer\Crashes.json" />
+  </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Data\Accounts.line" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Minecraft\CrashAnalyzer\Crashes.json" />
     <EmbeddedResource Include="Net\MirrorConfig.json" />
   </ItemGroup>
 
@@ -20,6 +27,11 @@
 
   <ItemGroup>
     <PackageReference Include="System.Management" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Launcher\Kit\" />
+    <Folder Include="Launcher\Logger\" />
   </ItemGroup>
 
 </Project>

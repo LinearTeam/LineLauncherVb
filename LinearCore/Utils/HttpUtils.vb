@@ -36,7 +36,7 @@ Public Class HttpUtils
     ''' <param name="accept">请求头</param>
     ''' <param name="contentType">内容类型</param>
     ''' <returns></returns>
-    Public Async Function PostWithJson(json As String, url As String, accept As String, contentType As String) As Task(Of String)
+    Public Async Function PostWithJsonAsync(json As String, url As String, accept As String, contentType As String) As Task(Of String)
         _httpClient.DefaultRequestHeaders.Accept.Clear()
         _httpClient.DefaultRequestHeaders.Accept.Add(New MediaTypeWithQualityHeaderValue(accept))
         Dim content = New StringContent(json)
@@ -58,7 +58,7 @@ Public Class HttpUtils
     ''' <param name="accept">请求头</param>
     ''' <param name="contentType">内容类型</param>
     ''' <returns></returns>
-    Public Async Function PostWithParameters(parameters As Dictionary(Of String, String), url As String, accept As String, contentType As String) As Task(Of String)
+    Public Async Function PostWithParametersAsync(parameters As Dictionary(Of String, String), url As String, accept As String, contentType As String) As Task(Of String)
         _httpClient.DefaultRequestHeaders.Accept.Clear()
         _httpClient.DefaultRequestHeaders.Accept.Add(New MediaTypeWithQualityHeaderValue(accept))
 
@@ -77,7 +77,7 @@ Public Class HttpUtils
     ''' <param name="url">请求url</param>
     ''' <param name="accept">请求头</param>
     ''' <returns></returns>
-    Public Async Function GetWithAuth(auth As String, url As String, accept As String) As Task(Of String)
+    Public Async Function GetWithAuthAsync(auth As String, url As String, accept As String) As Task(Of String)
         _httpClient.DefaultRequestHeaders.Clear()
         _httpClient.DefaultRequestHeaders.Add("Authorization", auth)
         _httpClient.DefaultRequestHeaders.Accept.Clear()
@@ -87,6 +87,21 @@ Public Class HttpUtils
 
         Dim responseContent = Await response.Content.ReadAsStringAsync()
         Return responseContent
+    End Function
+
+    Public Shared Async Function GrabWebSrcAsync(url As String, Optional timeoutSeconds As Integer = 30) As Task(Of String)
+        Using client As New HttpClient()
+            client.Timeout = TimeSpan.FromSeconds(timeoutSeconds)
+            Try
+                Dim response As HttpResponseMessage = Await client.GetAsync(url)
+                response.EnsureSuccessStatusCode()
+                Return Await response.Content.ReadAsStringAsync()
+            Catch ex As TaskCanceledException When ex.CancellationToken.IsCancellationRequested = False
+                Return $"Request timed out after {timeoutSeconds} seconds"
+            Catch ex As Exception
+                Return $"Error: {ex.Message}"
+            End Try
+        End Using
     End Function
 
     ''' <summary>

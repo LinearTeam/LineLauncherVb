@@ -1,65 +1,6 @@
 ﻿Imports System.IO
 Imports System.IO.Compression
-Imports System.Runtime.InteropServices
-Imports System.Security.Cryptography.X509Certificates
-
-Public Class MemoryCtrl
-    Public min, max As String
-End Class
-
-Public Class GeneralParameters
-    Private Const _quote = Chr(34)
-    Public literal As String
-
-    Public Sub AddPair(type As String, key As String, value As String)
-        Select Case type
-            Case "jvm"
-                literal += $"-{value} "
-            Case "mc"
-                literal += $"--{key} {_quote}{value}{_quote} "
-            Case "D"
-                literal += $"-{key}={_quote}{value}{_quote} "
-            Case "mainClass"
-                literal += $"{value} "
-            Case "cp"
-                literal += $"-cp {value} "
-            Case "java"
-                literal += $"{value} "
-        End Select
-    End Sub
-
-    Public Overrides Function ToString() As String
-        Return literal
-    End Function
-End Class
-
-Public Class ClassPathParameter
-    Private literal As String = Chr(34)
-    Private isAllowToAdd = True
-    Private isClosed = False
-    Public Sub AddItem(newPath As String)
-        If isAllowToAdd Then
-            literal += newPath + ";"
-            Return
-        End If
-        Throw New Exception("The cp field was closed.")
-    End Sub
-    Public Overrides Function ToString() As String
-        If isClosed Then
-            Return literal.ToString()
-        Else
-            Throw New Exception("The cp field is not yet closed.")
-        End If
-    End Function
-
-    Public Sub Close()
-        literal += Chr(34)
-        literal = Left(literal, Len(literal) - 2) & Right(literal, 1)
-        literal = literal.Replace("/", "\")
-        isClosed = True
-        isAllowToAdd = False
-    End Sub
-End Class
+Imports System.Text
 
 ''' <summary>
 ''' 游戏实例启动器, 依次需要 游戏根目录 版本 用户名 java路径 内存 窗体高宽 access token, uuid（在线登录，可选）
@@ -69,8 +10,9 @@ Public Class GameInstanceLauncher
     Public memory As MemoryCtrl
     Public windowHeight, windowWidth As Integer
     Public accessToken, uuid As String
+    Public extendedForgeJvmParam, extendedForgeGameParam As String
 
-    Private Sub Unpress(source As String)
+    Private Sub UnpressForDll(source As String)
         Dim targetFolder = $"{root}\versions\{version}\{version}-natives"
         Directory.CreateDirectory(targetFolder)
         Dim tempDir As String = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
@@ -92,7 +34,7 @@ Public Class GameInstanceLauncher
 
     Public Sub LaunchGame()
         Dim indexes = GameIndexParser.ParseIndex(version, $"{root}\versions\{version}\{version}.json", root, "Mojang")
-        Dim cp As New ClassPathParameter()
+        Dim cp As New ClassPathParameters()
         For Each i In indexes
             If Not i.isNative And Not i.isResources Then
                 cp.AddItem(i.path) '加入 artifact
@@ -104,7 +46,7 @@ Public Class GameInstanceLauncher
             End If
 
             If i.isNative Then
-                Unpress(i.path) '解压 natives
+                UnpressForDll(i.path) '解压 natives
             End If
         Next
         cp.Close()
@@ -133,7 +75,19 @@ Public Class GameInstanceLauncher
         commands.AddPair("D", "Djava.library.path", $"{root}\versions\{version}\{version}-natives")
 
         'cp 参数
-        commands.AddPair("cp", Nothing, cp.ToString())
+        Dim cps = New List(Of String)
+        For Each path In cp.ToString().Split(";")
+            If cps.Contains(path) Then
+                Continue For
+            End If
+            cps.Add(path)
+        Next
+        Dim actualCp = String.Join(";", cps)
+        commands.AddPair("cp", Nothing, actualCp)
+
+        If extendedForgeJvmParam IsNot Nothing Then
+            extendedForgeJvmParam = extendedForgeJvmParam.Replace("${library_directory}", $"{root}\libraries").Replace("${classpath_separator}", ";").Replace("${version_name}", version)
+        End If
 
         'mc 参数
         commands.AddPair("mainClass", Nothing, mainClass)
@@ -156,7 +110,10 @@ Public Class GameInstanceLauncher
         commands.AddPair("mc", "userType", "Legacy")
         commands.AddPair("mc", "versionType", "LMC")
 
-        File.WriteAllText("./launch.bat", commands.ToString()) '写入到 bat
+        Dim commandArr = commands.ToString().Split($" {mainClass}")
+        Dim commandString = commandArr(0) + extendedForgeJvmParam + " " + mainClass + commandArr(1) + " " + extendedForgeGameParam
+
+        File.WriteAllText("./launch.bat", commandString) '写入到 bat
         Process.Start("./launch.bat") '执行
     End Sub
 End Class

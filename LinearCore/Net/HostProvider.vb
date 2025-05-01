@@ -1,39 +1,12 @@
 ﻿Imports System.IO
 Imports System.Reflection
 
-Public Class UndefinedMirrorException
-    Inherits Exception
-    Public Sub New()
-        MyBase.New("Undefined or incompleted mirror")
-    End Sub
-
-    Public Sub New(message As String)
-        MyBase.New(message)
-    End Sub
-
-    Public Sub New(message As String, innerException As Exception)
-        MyBase.New(message, innerException)
-    End Sub
-End Class
-
-Public Class Mirror
-    Public pistonMeta As String
-    Public pistonData As String
-    Public laucherMeta As String
-    Public launcher As String
-    Public resources As String
-    Public libraries As String
-
-    Public fabric As String
-End Class
-
 ''' <summary>
 ''' 根据 Json 中的配置文件提供所需源的信息
 ''' </summary>
 Public Class HostProvider
     Public provideMirror As New Mirror()
-    Private ReadOnly _jsonParser As JsonUtils
-
+    Private ReadOnly _parsedContent
     ''' <summary>
     ''' 实例化一个 HostProvider
     ''' </summary>
@@ -43,16 +16,18 @@ Public Class HostProvider
         Using stream As Stream = assembly.GetManifestResourceStream("LinearCore.MirrorConfig.json")
             Using reader As New StreamReader(stream)
                 Dim content As String = reader.ReadToEnd()
-                _jsonParser = New JsonUtils((content))
-                Dim mirrorsList = _jsonParser.GetNestedKeys("mirrors")
+                _parsedContent = JsonUtils.Parse(content)
+
+                Dim mirrorsList = _parsedContent.GetNestedKeys("mirrors")
                 If mirrorsList.Contains(mirror) Then
-                    provideMirror.pistonMeta = _jsonParser.GetNestedValue($"mirrors.{mirror}.pistonMeta")
-                    provideMirror.pistonData = _jsonParser.GetNestedValue($"mirrors.{mirror}.pistonData")
-                    provideMirror.laucherMeta = _jsonParser.GetNestedValue($"mirrors.{mirror}.launcherMeta")
-                    provideMirror.launcher = _jsonParser.GetNestedValue($"mirrors.{mirror}.launcher")
-                    provideMirror.resources = _jsonParser.GetNestedValue($"mirrors.{mirror}.resources")
-                    provideMirror.libraries = _jsonParser.GetNestedValue($"mirrors.{mirror}.libraries")
-                    provideMirror.fabric = _jsonParser.GetNestedValue($"mirrors.{mirror}.fabric")
+                    provideMirror.pistonMeta = _parsedContent("mirrors")(mirror)("pistonMeta")
+                    provideMirror.pistonData = _parsedContent("mirrors")(mirror)("pistonData")
+                    provideMirror.laucherMeta = _parsedContent("mirrors")(mirror)("launcherMeta")
+                    provideMirror.launcher = _parsedContent("mirrors")(mirror)("launcher")
+                    provideMirror.resources = _parsedContent("mirrors")(mirror)("resources")
+                    provideMirror.libraries = _parsedContent("mirrors")(mirror)("libraries")
+                    provideMirror.fabric = _parsedContent("mirrors")(mirror)("fabric")
+                    provideMirror.forgeMaven = _parsedContent("mirrors")(mirror)("forgeMaven")
                 Else
                     Throw New UndefinedMirrorException()
                 End If
@@ -84,6 +59,8 @@ Public Class HostProvider
                 Return $"{provideMirror.resources}{pathUrl}"
             Case "libraries.minecraft"
                 Return $"{provideMirror.libraries}{pathUrl}"
+            Case "maven.minecraftforge"
+                Return $"{provideMirror.forgeMaven}{pathUrl}"
             Case Else
                 Throw New Exception($"Illegal url: {url}")
         End Select

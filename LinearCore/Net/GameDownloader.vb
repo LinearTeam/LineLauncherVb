@@ -4,50 +4,6 @@ Imports System.Net.Http
 Imports System.Security.Cryptography
 Imports System.Threading
 
-Public Class MinecraftVersion
-    Public name As String
-    Public releaseTime As String
-    Public type As String
-    Public url As String
-
-    Public Sub New(name As String, releaseTime As String, type As String, url As String)
-        Me.name = name
-        Me.releaseTime = releaseTime
-        Me.type = type
-        Me.url = url
-    End Sub
-End Class
-
-Public Class NetworkException
-    Inherits Exception
-    Public Sub New()
-        MyBase.New("A network exception occured, please check your network connection.")
-    End Sub
-
-    Public Sub New(message As String)
-        MyBase.New(message)
-    End Sub
-
-    Public Sub New(message As String, innerException As Exception)
-        MyBase.New(message, innerException)
-    End Sub
-End Class
-
-Public Class VersionNotFoundException
-    Inherits Exception
-    Public Sub New()
-        MyBase.New("Version not found.")
-    End Sub
-
-    Public Sub New(message As String)
-        MyBase.New(message)
-    End Sub
-
-    Public Sub New(message As String, innerException As Exception)
-        MyBase.New(message, innerException)
-    End Sub
-End Class
-
 ''' <summary>
 ''' 游戏下载器
 ''' </summary>
@@ -55,13 +11,13 @@ Public Class GameDownloader
     Private ReadOnly _minecraftVersions = New List(Of MinecraftVersion)
     Private ReadOnly _client As New HttpClient()
     Private ReadOnly _hostProvider As HostProvider
-    Private Shared _httpUtils As HttpUtils
+    Private ReadOnly _httpUtils As New HttpUtils()
 
     Private Const _MAX_RETRIES = 20
     Private _successCount = 0
     Private _failureCount = 0
 
-    Public mirror As String
+    Private ReadOnly _mirror As String
     Private _totalCount As Integer
     Private ReadOnly _batchSize As Integer
 
@@ -74,13 +30,13 @@ Public Class GameDownloader
     ''' <param name="maxConcurrent">最大并发数，默认为64</param>
     ''' <param name="batchSize">下载器使用了分批下载的逻辑，批数默认为500，不建议改动</param>
     Public Sub New(mirror As String, Optional maxConcurrent As Integer = 64, Optional batchSize As Integer = 500)
-        Me.mirror = mirror
-        Me._batchSize = batchSize
+        _mirror = mirror
+        _batchSize = batchSize
 
         _hostProvider = New HostProvider(mirror)
-        _httpUtils = New HttpUtils()
         _semaphore = New SemaphoreSlim(maxConcurrent)
     End Sub
+
     Private Async Function GetVersionManifest() As Task(Of String)
         Try
             Dim content = Await _httpUtils.GetAsync($"{_hostProvider.provideMirror.pistonMeta}/mc/game/version_manifest.json")
@@ -92,23 +48,24 @@ Public Class GameDownloader
 
     Private Sub ParseVerionManifest()
         Dim raw = GetVersionManifest().Result
-        Dim jsonParser = New JsonUtils(raw)
-        For Each i In jsonParser.GetArray("versions")
-            Dim id = JsonUtils.GetValueFromJson(i.ToString(), "id")
-            Dim releaseTime = JsonUtils.GetValueFromJson(i.ToString(), "releaseTime")
-            Dim url = JsonUtils.GetValueFromJson(i.ToString(), "url")
-            Dim type = JsonUtils.GetValueFromJson(i.ToString(), "type")
-            _minecraftVersions.Add(New MinecraftVersion(id, releaseTime, type, url))
+        Dim parsed = JsonUtils.Parse(raw)
+        For Each version In parsed.versions
+            _minecraftVersions.Add(New MinecraftVersion With {
+                .id = version.id,
+                .releaseTime = version.releaseTime,
+                .type = version.type,
+                .url = version.url
+            })
         Next
     End Sub
 
-    Private Function SearchTheVersion(version As String) As MinecraftVersion
-        For Each i In _minecraftVersions
-            If version = i.name Then
-                Return i
+    Private Function SearchVersion(requiredVersion As String) As MinecraftVersion
+        For Each version In _minecraftVersions
+            If requiredVersion = version.id Then
+                Return version
             End If
         Next
-        Throw New VersionNotFoundException($"Version {version} not found, please check if your input is correct.")
+        Throw New VersionNotFoundException($"Version {requiredVersion} not found, please check if your input is correct.")
     End Function
 
     ''' <summary>
@@ -123,7 +80,8 @@ Public Class GameDownloader
         End If
 
         ParseVerionManifest()
-        Dim SearchedVersion = SearchTheVersion(requiredVersion)
+
+        Dim SearchedVersion = SearchVersion(requiredVersion)
         Dim versionDir = $"{root}\versions\{customName}"
         If Not Directory.Exists(versionDir) Then
             Directory.CreateDirectory(versionDir)
@@ -134,12 +92,13 @@ Public Class GameDownloader
         Dim content = _httpUtils.GetAsync(_hostProvider.TransformToTargetMirror(SearchedVersion.url)).Result
         File.WriteAllText($"{versionDir}\{customName}.json", content)
 
-        Dim versionManifest = File.ReadAllText($"{versionDir}\{customName}.json")
-        Dim resourcesIndexUrl = JsonUtils.GetValueFromJson(versionManifest, "assetIndex.url")
-        Dim indexId = JsonUtils.GetValueFromJson(versionManifest, "assetIndex.id")
+        Dim versionManifest = JsonUtils.Parse(File.ReadAllText($"{versionDir}\{customName}.json"))
+        Dim resourcesIndexUrl = versionManifest.assetIndex.url
+        Dim indexId = versionManifest.assetIndex.id
         Dim result = _httpUtils.GetAsync(_hostProvider.TransformToTargetMirror(resourcesIndexUrl)).Result
         File.WriteAllText($"{root}\assets\indexes\{indexId}.json", result)
     End Sub
+
     ''' <summary>
     ''' 下载游戏的主方法
     ''' </summary>
@@ -160,7 +119,7 @@ Public Class GameDownloader
             customName,
             $"{root}\versions\{customName}\{customName}.json",
             root,
-            mirror)
+            _mirror)
 
         For Each file In files
             If file.doNotDownload = True Then
@@ -171,11 +130,21 @@ Public Class GameDownloader
         Await DownloadFileAsync(files)
     End Function
 
-    Public Async Function DownloadFabricFiles(root As String, files As List(Of MinecraftFile)) As Task
+    Public Async Function DownloadModLoaderFiles(root As String, files As List(Of MinecraftFile)) As Task
         For Each file In files
             file.path = $"{root}/libraries/{file.path}"
         Next
         Await DownloadFileAsync(files)
+    End Function
+
+    Public Async Function DownloadForgeInstaller(targetPath As String, url As String) As Task
+        Dim tasks As New List(Of MinecraftFile) From {
+            New MinecraftFile With {
+                  .path = targetPath,
+                  .url = url
+            }
+        }
+        Await DownloadFileAsync(tasks)
     End Function
 
     Private Async Function DownloadFileAsync(files As List(Of MinecraftFile)) As Task

@@ -1,0 +1,26 @@
+{
+  "Manually triggered debug crash": {
+    "type": "Universal",
+    "reason": {
+      "english": "Manually triggered debug crash.",
+      "simplifiedChinese": "手动触发了调试性崩溃。",
+      "traditionalChinese": "手動觸發了調試性崩潰。"
+    },
+    "analysis": {
+      "english": "It seems like you deliberately triggered this crash. Are you serious?",
+      "simplifiedChinese": "这次崩溃似乎是你故意引发的，你认真的吗？",
+      "traditionalChinese": "這次崩潰似乎是你故意引發的，你認真的嗎？"
+    },
+    "solutions": {
+      "english": [
+        "DO NOT hold down the 'F3 + C' key combination."
+      ],
+      "simplifiedChinese": [
+        "不要按住 'F3 + C' 组合键。"
+      ],
+      "traditionalChinese": [
+        "不要按住 'F3 + C' 組合鍵。"
+      ]
+    }
+  }
+}

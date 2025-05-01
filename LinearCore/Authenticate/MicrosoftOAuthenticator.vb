@@ -1,6 +1,4 @@
-﻿Imports System
-
-Public Class MicrosoftOAuthenticator
+﻿Public Class MicrosoftOAuthenticator
     Implements IDisposable
 
     Private ReadOnly _httpUtils As New HttpUtils()
@@ -77,8 +75,6 @@ Public Class MicrosoftOAuthenticator
         End Try
     End Sub
 
-
-
     ''' <summary>
     ''' 通过 RefreshToken 获取 AccessToken
     ''' </summary>
@@ -92,7 +88,7 @@ Public Class MicrosoftOAuthenticator
             {"grant_type", "refresh_token"}
         }
         Dim tokenUrl As String = $"https://login.microsoftonline.com/{Consumer}/oauth2/v2.0/token"
-        Dim tokenResponse = _httpUtils.PostWithParameters(tokenRequestData, tokenUrl, "application/json", "application/x-www-form-urlencoded").Result
+        Dim tokenResponse = _httpUtils.PostWithParametersAsync(tokenRequestData, tokenUrl, "application/json", "application/x-www-form-urlencoded").Result
         Dim tokenResult = JsonUtils.Parse(tokenResponse)
 
         Return tokenResult.access_token
@@ -111,13 +107,11 @@ Public Class MicrosoftOAuthenticator
         }
 
         Dim tokenUrl As String = $"https://login.microsoftonline.com/{Consumer}/oauth2/v2.0/token"
-        Dim tokenResponse = _httpUtils.PostWithParameters(tokenRequestData, tokenUrl, "application/json", "application/x-www-form-urlencoded").Result
+        Dim tokenResponse = _httpUtils.PostWithParametersAsync(tokenRequestData, tokenUrl, "application/json", "application/x-www-form-urlencoded").Result
         Dim tokenResult = JsonUtils.Parse(tokenResponse)
 
         Return tokenResult.access_token
     End Function
-
-
 
     ''' <summary>
     ''' 验证 Xbox Live 身份
@@ -134,7 +128,7 @@ Public Class MicrosoftOAuthenticator
             "TokenType": "JWT"
         }</string>.Value.Replace("accessToken", _accessToken)
 
-        Dim xblResponse = _httpUtils.PostWithJson(xblData, xblUrl, "application/json", "application/x-www-form-urlencoded").Result
+        Dim xblResponse = _httpUtils.PostWithJsonAsync(xblData, xblUrl, "application/json", "application/x-www-form-urlencoded").Result
         Dim parsedXblResponse = JsonUtils.Parse(xblResponse)
 
         _uhs = parsedXblResponse.DisplayClaims.xui(0).uhs
@@ -157,7 +151,7 @@ Public Class MicrosoftOAuthenticator
             "TokenType": "JWT"
         }</string>.Value.Replace("xblToken", _xblToken)
 
-        Dim xstsResponse = _httpUtils.PostWithJson(xstsData, xstsUrl, "application/json", "application/x-www-form-urlencoded").Result
+        Dim xstsResponse = _httpUtils.PostWithJsonAsync(xstsData, xstsUrl, "application/json", "application/x-www-form-urlencoded").Result
         Dim parsedXstsResponse = JsonUtils.Parse(xstsResponse)
         _xstsToken = parsedXstsResponse.Token
     End Sub
@@ -171,8 +165,9 @@ Public Class MicrosoftOAuthenticator
             "identityToken": "XBL3.0 x=uhs;xstsToken"
         }</string>.Value.Replace("uhs", _uhs).Replace("xstsToken", _xstsToken)
 
-        Dim mcResponse = _httpUtils.PostWithJson(mcData, mcUrl, "application/json", "application/json").Result
-        _jwt = JsonUtils.GetValueFromJson(mcResponse, "access_token")
+        Dim mcResponse = _httpUtils.PostWithJsonAsync(mcData, mcUrl, "application/json", "application/json").Result
+        Dim parsedMcResponse = JsonUtils.Parse(mcResponse)
+        _jwt = parsedMcResponse.access_token
     End Sub
 
     ''' <summary>
@@ -180,18 +175,24 @@ Public Class MicrosoftOAuthenticator
     ''' </summary>
     Private Function TryGetMinecraftProfile() As Dictionary(Of String, String)
         Dim profileUrl As String = "https://api.minecraftservices.com/minecraft/profile"
-        Dim profileResponse = _httpUtils.GetWithAuth($"Bearer {_jwt}", profileUrl, "application/json").Result
+        Dim profileResponse = _httpUtils.GetWithAuthAsync($"Bearer {_jwt}", profileUrl, "application/json").Result
+        Dim parsedProfile = JsonUtils.Parse(profileResponse)
 
-        If profileResponse.Contains("errorType") Then
-            If JsonUtils.GetValueFromJson(profileResponse, "errorType") = "NOT_FOUND" Then
+        If parsedProfile.errorType IsNot Nothing Then
+            If parsedProfile.errorType = "NOT_FOUND" Then
                 Throw New Exception("The account is not available.")
             End If
         End If
 
+        Dim skinUrl As String = Nothing
+        If parsedProfile.skins IsNot Nothing AndAlso parsedProfile.skins.Count > 0 Then
+            skinUrl = parsedProfile.skins(0).url
+        End If
+
         Return New Dictionary(Of String, String) From {
-            {"name", JsonUtils.GetValueFromJson(profileResponse, "name")},
-            {"uuid", JsonUtils.GetValueFromJson(profileResponse, "id")},
-            {"skinUrl", JsonUtils.GetValueFromJson(profileResponse, "skins[0].url")}
+            {"name", parsedProfile.name},
+            {"uuid", parsedProfile.id},
+            {"skinUrl", skinUrl}
         }
     End Function
 
